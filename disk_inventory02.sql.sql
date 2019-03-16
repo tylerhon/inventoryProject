@@ -3,6 +3,7 @@
 *
 *	Tyler Hon		3/1/2019		Implementation of disk_inventoryth
 *	Tyler Hon		3/8/2019		Implementation of INSERT statements (Line 86)
+*	Tyler Hon		3/14/2019		Implementation of JOIN statements (Line 256)
 *********************************************************************************/
 
 USE master
@@ -221,7 +222,7 @@ Insert into [dbo].[diskHasBorrower]
 			,(5, 10, '1/13/2019', null)
 			,(9, 12, '2/25/2019', '3/2/2019')
 			,(10, 1, '12/4/2018', '12/30/2018')
-			,(14, 20, '12/24/2018', '1/2/2019')
+			,(14, 19, '12/24/2018', '1/2/2019')
 			,(3, 16, '11/10/2018', '12/13/2018')
 			,(1, 18, '10/16/2018', '11/16/2018')
 			,(6, 13, '11/18/2018', '12/20/2018')
@@ -245,14 +246,79 @@ Insert into [dbo].[diskHasArtist]
 			,( 14, 16)
 			,( 17, 14)
 			,( 3, 4)
-			,( 12, 5)
+			,( 12, 10)
 			,( 13, 8)
 			,( 15, 13)
 			,( 16, 9)
 			,( 19, 1)
 go
 
+----- Project 4 Documentation-----
+--3--
+use disk_inventoryth
+go
 
+select disk_name as 'Disk Name', release_date as 'Release Name', fname as 'Artist First Name',
+	lname as 'Artist Last Name'
+from disk
+join diskHasArtist on disk.disk_id = diskHasArtist.disk_id
+join artist on diskHasArtist.artist_id = artist.artist_id
+--add order by & format the date
+order by [Artist Last Name], [Artist First Name], [Disk Name]
+go
+
+--4--
+drop view if exists View_Individual_Artist
+go
+
+create view View_Individual_Artist as
+	select artist_id, fname, lname
+	from artist
+	where artist_type_id = 1
+go
+
+select fname as FirstName, lname as LastName
+from View_Individual_Artist
+
+--5--
+select disk_name as 'Disk Name', release_date as 'Release Name', fname as 'Group Name'
+from disk
+join diskHasArtist on disk.disk_id = diskHasArtist.disk_id
+join artist on diskHasArtist.artist_id = artist.artist_id
+where artist.artist_id != ALL --NOT IN
+	(select artist_id from View_Individual_Artist)
+--add order by & format the date
+order by [Group Name], [Disk Name]
+
+go
+
+--6--
+select fname as First, lname as Last, disk_name as 'Disk Name', borrowed_date as 'Borrowed Date', returned_date as 'Returned Date'
+from borrower
+join diskHasBorrower on borrower.borrower_id = diskHasBorrower.borrower_id
+join disk on disk.disk_id = diskHasBorrower.disk_id
+--add order by & format the date
+order by Last, First, [Disk Name], [Borrowed Date], [Returned Date]
+
+--select ('yyyy-mm-dd')
+
+go
+
+--7--
+select disk.disk_id, disk_name, count(*) as 'Times Borrowed'
+from disk
+join diskHasBorrower on disk.disk_id = diskHasBorrower.disk_id
+group by disk.disk_id, disk_name
+--add order by & aliases
+
+--8--
+select disk_name, borrowed_date, returned_date, lname
+from disk
+join diskHasBorrower on disk.disk_id = diskHasBorrower.disk_id
+join borrower on diskHasBorrower.borrower_id = borrower.borrower_id
+where returned_date is null
+--add order by & aliases
+order by disk_name
 -------------------------------------------------------
 
 use master
