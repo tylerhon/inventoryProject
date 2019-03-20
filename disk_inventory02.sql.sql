@@ -4,6 +4,7 @@
 *	Tyler Hon		3/1/2019		Implementation of disk_inventoryth
 *	Tyler Hon		3/8/2019		Implementation of INSERT statements (Line 86)
 *	Tyler Hon		3/14/2019		Implementation of JOIN statements (Line 256)
+*	Tyler Hon		3/20/2019		Implementation of Stored Procedures (Line 326)
 *********************************************************************************/
 
 USE master
@@ -196,6 +197,7 @@ Insert into [dbo].[disk]
 			,('Dancing With A Stranger', '10/10/2018', 3, 3, 1)
 			,('Beautiful Crazy', '09/16/2018', 2, 2, 2)
 			,('ZEZE', '10/18/2018', 1, 1, 3)
+			,('IDEK', '11/13/2018', 1, 2, 1)
 go
 
 update disk
@@ -319,6 +321,225 @@ join borrower on diskHasBorrower.borrower_id = borrower.borrower_id
 where returned_date is null
 --add order by & aliases
 order by disk_name
+
+------------------------Project 5 Documentation----------------------------
+use disk_inventoryth
+go
+--Create insert procedure for borrower--
+drop procedure if exists ins_borrower
+go
+create procedure ins_borrower
+	@fname nvarchar(100),
+	@lname nvarchar(100), 
+	@phone_numb nvarchar(50)
+as
+	BEGIN TRY
+	INSERT INTO [dbo].[borrower]
+				([fname]
+				,[lname]
+				,[phone_numb])
+			VALUES
+				(@fname
+				,@lname
+				,@phone_numb)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+	GO
+exec ins_borrower 'Tigger', 'Tiger', '1234518769'
+go
+
+--Create update procedure for borrower--
+drop procedure if exists upd_borrower
+go
+create procedure upd_borrower
+	@borrower_id int,
+	@fname nvarchar(100),
+	@lname nvarchar(100), 
+	@phone_numb nvarchar(50)
+as
+	BEGIN TRY
+		UPDATE [dbo].[borrower]
+		   SET [fname] = 'Eeyore'
+			  ,[lname] = 'Donkey'
+			  ,[phone_numb] = '2234578125'
+		 WHERE borrower_id = @borrower_id
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+GO
+exec upd_borrower 22, 'Eeyore', 'Donkey', '2234578125'
+go
+select * from borrower
+
+--Create delete procedure for borrower--
+drop procedure if exists del_borrower
+go
+create procedure del_borrower
+	@borrower_id int
+as
+	BEGIN TRY
+		 DELETE [dbo].[borrower]
+		 WHERE borrower_id = @borrower_id
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+GO
+exec del_borrower 21
+go
+
+--Create insert procedure for artist--
+drop procedure if exists ins_artist
+go
+create procedure ins_artist
+	@fname nvarchar(100),
+	@lname nvarchar(100), 
+	@artist_type_id int
+as
+	BEGIN TRY
+	INSERT INTO [dbo].[artist]
+				([fname]
+				,[lname]
+				,[artist_type_id])
+			VALUES
+				(@fname
+				,@lname
+				,@artist_type_id)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+	GO
+exec ins_artist 'Mac', 'Miller', 1
+go
+
+--Create update procedure for artist--
+drop procedure if exists upd_artist
+go
+create procedure upd_artist
+	@artist_id int,
+	@fname nvarchar(100),
+	@lname nvarchar(100), 
+	@artist_type_id int
+as
+	BEGIN TRY
+		UPDATE [dbo].[artist]
+		   SET [fname] = 'Gucci'
+			  ,[lname] = 'Mane'
+			  ,[artist_type_id] = 1
+		 WHERE artist_id = @artist_id
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+GO
+
+exec upd_artist 21, 'Gucci', 'Mane', 1
+go
+
+--Create delete procedure for artist--
+drop procedure if exists del_artist
+go
+create procedure del_artist
+	@artist_id int
+as
+	BEGIN TRY
+		DELETE FROM [dbo].[artist]
+		WHERE artist_id = @artist_id
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+GO
+exec del_artist 20
+go
+
+--Create insert procedure for disk--
+drop procedure if exists ins_disk
+go
+create procedure ins_disk
+	@disk_name varchar(100),
+	@release_date datetime,
+	@genre_id int,
+	@status_id int,
+	@disk_type_id int
+as
+	BEGIN TRY
+	INSERT INTO [dbo].[disk]
+			   ([disk_name]
+			   ,[release_date]
+			   ,[genre_id]
+			   ,[status_id]
+			   ,[disk_type_id])
+		 VALUES
+			   (@disk_name
+			   ,@release_date
+			   ,@genre_id
+			   ,@status_id
+			   ,@disk_type_id)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	END CATCH
+GO
+exec ins_disk 'Passing', '03/20/2019', 1, 2, 1
+
+--Create update procedure for disk--
+drop procedure if exists upd_disk
+go
+create procedure upd_disk
+	@disk_id int,
+	@disk_name varchar(100),
+	@release_date datetime,
+	@genre_id int,
+	@status_id int,
+	@disk_type_id int
+as
+	BEGIN TRY
+	UPDATE [dbo].[disk]
+	   SET [disk_name] = 'Birthday'
+		  ,[release_date] = '03/14/1999'
+		  ,[genre_id] = 1
+		  ,[status_id] = 2
+		  ,[disk_type_id] = 3
+	 WHERE disk_id = @disk_id
+	 END TRY
+	 BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar, ERROR_MESSAGE())
+	 END CATCH
+GO
+exec upd_disk 12, 'Birthday', '03/14/1999', 1, 2, 3
+go
+
+--Create delete procedure for disk--
+drop procedure if exists del_disk
+go
+create procedure del_disk
+	@disk_id int
+as
+	BEGIN TRY
+		DELETE FROM [dbo].[disk]
+		WHERE disk_id = @disk_id
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occurred.'
+		PRINT 'Message: ' + CONVERT(varchar(200), ERROR_MESSAGE())
+	END CATCH
+GO
+exec del_disk 42
+go
+select * from disk
 -------------------------------------------------------
 
 use master
